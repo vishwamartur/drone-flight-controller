@@ -59,7 +59,7 @@ drone-flight-controller/
 
 1. **Clone the Repository**
    ```bash
-   git clone https://github.com/yourusername/drone-flight-controller.git
+   git clone [https://github.com/yourusername/drone-flight-controller.git](https://github.com/vishwamartur/drone-flight-controller.git)
    cd drone-flight-controller
    ```
 
