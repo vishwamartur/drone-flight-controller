@@ -100,3 +100,18 @@ static void check_failsafe(void) {
         }
     }
 }
+
+// Interrupt configuration for handling critical timing functions
+void configure_interrupts(void) {
+    // Configure interrupt for remote control input capture
+    irq_set_exclusive_handler(PWM_IRQ_WRAP, pwm_irq_handler);
+    irq_set_enabled(PWM_IRQ_WRAP, true);
+    pwm_clear_irq(pwm_gpio_to_slice_num(0));
+    pwm_set_irq_enabled(pwm_gpio_to_slice_num(0), true);
+
+    // Configure interrupt for sensor updates (example)
+    // irq_set_exclusive_handler(SENSOR_IRQ, sensor_irq_handler);
+    // irq_set_enabled(SENSOR_IRQ, true);
+    // sensor_clear_irq();
+    // sensor_set_irq_enabled(true);
+}
