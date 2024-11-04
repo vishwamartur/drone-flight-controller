@@ -84,14 +84,55 @@ int main(void) {
 
 // System clock configuration
 void SystemClock_Config(void) {
-    // Configure system clock for maximum performance
-    // Implementation specific to STM32F401
+    // Configure system clock for 133MHz
+    RCC->CR |= RCC_CR_HSEON; // Enable HSE
+    while (!(RCC->CR & RCC_CR_HSERDY)); // Wait for HSE to be ready
+
+    RCC->PLLCFGR = (8 << RCC_PLLCFGR_PLLM_Pos) | // PLLM = 8
+                   (266 << RCC_PLLCFGR_PLLN_Pos) | // PLLN = 266
+                   (0 << RCC_PLLCFGR_PLLP_Pos) | // PLLP = 2
+                   (RCC_PLLCFGR_PLLSRC_HSE) | // PLL source = HSE
+                   (7 << RCC_PLLCFGR_PLLQ_Pos); // PLLQ = 7
+
+    RCC->CR |= RCC_CR_PLLON; // Enable PLL
+    while (!(RCC->CR & RCC_CR_PLLRDY)); // Wait for PLL to be ready
+
+    RCC->CFGR |= RCC_CFGR_SW_PLL; // Select PLL as system clock source
+    while ((RCC->CFGR & RCC_CFGR_SWS) != RCC_CFGR_SWS_PLL); // Wait for PLL to be used as system clock source
 }
 
 // GPIO initialization 
 void GPIO_Init(void) {
-    // Configure GPIO pins for ESCs, sensors etc
-    // Implementation specific to hardware setup
+    // Enable GPIO clocks
+    __HAL_RCC_GPIOA_CLK_ENABLE();
+    __HAL_RCC_GPIOB_CLK_ENABLE();
+    __HAL_RCC_GPIOC_CLK_ENABLE();
+    __HAL_RCC_GPIOD_CLK_ENABLE();
+    __HAL_RCC_GPIOE_CLK_ENABLE();
+
+    // Configure GPIO pins for sensor inputs, ESC outputs, and auxiliary functions
+    GPIO_InitTypeDef GPIO_InitStruct = {0};
+
+    // Sensor inputs
+    GPIO_InitStruct.Pin = GPIO_PIN_0 | GPIO_PIN_1 | GPIO_PIN_2;
+    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+    // ESC outputs
+    GPIO_InitStruct.Pin = GPIO_PIN_8 | GPIO_PIN_9 | GPIO_PIN_10 | GPIO_PIN_11;
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+    GPIO_InitStruct.Alternate = GPIO_AF1_TIM1;
+    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+    // Auxiliary functions
+    GPIO_InitStruct.Pin = GPIO_PIN_12 | GPIO_PIN_13 | GPIO_PIN_14 | GPIO_PIN_15;
+    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 }
 
 // UART initialization for debug output
