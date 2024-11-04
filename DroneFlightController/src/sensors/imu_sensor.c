@@ -1,13 +1,7 @@
-//
-//  imu_sensor.c
-//  DroneFlightController
-//
-//  Created by Vishwanath Martur on 11/1/24.
-//
-
 #include "imu_sensor.h"
 #include "FreeRTOS.h"
 #include "semphr.h"
+#include "i2c_driver.h"
 
 // Constructor
 IMUSensor::IMUSensor() : initialized(false), calibrated(false) {
@@ -29,6 +23,11 @@ IMUSensor::~IMUSensor() {
 
 bool IMUSensor::initialize() {
     if(!performSelfTest()) {
+        return false;
+    }
+
+    // Configure sensor registers
+    if(!configureSensorRegisters()) {
         return false;
     }
     
@@ -141,6 +140,37 @@ bool IMUSensor::performSelfTest() {
     // Implement self-test routine
     // This would typically involve reading test registers
     // and verifying sensor responses
+    return true;
+}
+
+bool IMUSensor::configureSensorRegisters() {
+    // Example configuration for MPU6050
+    uint8_t data = 0;
+
+    // Set sample rate to 1kHz
+    data = 0x07;
+    if(i2c_write_byte(MPU6050_ADDRESS, MPU6050_SMPLRT_DIV, data) != I2C_SUCCESS) {
+        return false;
+    }
+
+    // Set accelerometer configuration
+    data = 0x00; // +/- 2g
+    if(i2c_write_byte(MPU6050_ADDRESS, MPU6050_ACCEL_CONFIG, data) != I2C_SUCCESS) {
+        return false;
+    }
+
+    // Set gyroscope configuration
+    data = 0x00; // +/- 250 degrees/sec
+    if(i2c_write_byte(MPU6050_ADDRESS, MPU6050_GYRO_CONFIG, data) != I2C_SUCCESS) {
+        return false;
+    }
+
+    // Set power management
+    data = 0x01; // PLL with X axis gyroscope reference
+    if(i2c_write_byte(MPU6050_ADDRESS, MPU6050_PWR_MGMT_1, data) != I2C_SUCCESS) {
+        return false;
+    }
+
     return true;
 }
 

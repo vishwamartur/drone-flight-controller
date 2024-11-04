@@ -103,7 +103,15 @@ void UART_Init(void) {
 // IMU sensor initialization
 void IMU_Init(void) {
     // Initialize and calibrate IMU sensor
-    // Implementation specific to IMU hardware
+    IMUSensor imu;
+    if (!imu.initialize()) {
+        logger_log(LOG_ERROR, __FILE__, __LINE__, "IMU initialization failed");
+        return;
+    }
+    if (!imu.calibrate()) {
+        logger_log(LOG_ERROR, __FILE__, __LINE__, "IMU calibration failed");
+        return;
+    }
 }
 
 // ESC initialization
