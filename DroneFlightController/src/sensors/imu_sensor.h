@@ -1,10 +1,3 @@
-//
-//  imu_sensor.h
-//  DroneFlightController
-//
-//  Created by Vishwanath Martur on 11/1/24.
-//
-
 #ifndef imu_sensor_h
 #define imu_sensor_h
 
@@ -37,6 +30,9 @@ public:
     bool isInitialized() const;
     bool isSelfTestPassed() const;
     
+    // Sensor register configuration
+    bool configureSensorRegisters();
+
 private:
     // Internal state
     bool initialized;
