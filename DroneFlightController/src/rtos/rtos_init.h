@@ -1,10 +1,3 @@
-//
-//  rtos_init.h
-//  DroneFlightController
-//
-//  Created by Vishwanath Martur on 11/1/24.
-//
-
 #ifndef rtos_init_h
 #define rtos_init_h
 
@@ -17,6 +10,7 @@
 #define SENSOR_TASK_PRIORITY      (tskIDLE_PRIORITY + 3)
 #define CONTROL_TASK_PRIORITY     (tskIDLE_PRIORITY + 2) 
 #define TELEMETRY_TASK_PRIORITY   (tskIDLE_PRIORITY + 1)
+#define REMOTE_CONTROL_TASK_PRIORITY (tskIDLE_PRIORITY + 4) // Added for remote control task
 
 // Task stack sizes
 #define SENSOR_STACK_SIZE         (configMINIMAL_STACK_SIZE * 2)
@@ -36,6 +30,8 @@ extern TaskHandle_t telemetry_task_handle;
 // Queue handle declarations
 extern QueueHandle_t sensor_data_queue;
 extern QueueHandle_t control_command_queue;
+extern QueueHandle_t pid_command_queue; // Added for PID command queue
+extern QueueHandle_t remote_control_queue; // Added for remote control queue
 
 // Semaphore handle declarations
 extern SemaphoreHandle_t sensor_mutex;

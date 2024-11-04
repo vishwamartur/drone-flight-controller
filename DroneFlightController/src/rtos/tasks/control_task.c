@@ -1,10 +1,3 @@
-//
-//  control_task.c
-//  DroneFlightController
-//
-//  Created by Vishwanath Martur on 11/1/24.
-//
-
 #include "control_task.h"
 #include "FreeRTOS.h"
 #include "task.h"
@@ -12,12 +5,16 @@
 #include "sensors.h"
 #include "pid_controller.h"
 #include "motor_control.h"
+#include "queue.h"
 
 // Task handle
 static TaskHandle_t controlTaskHandle = NULL;
 
 // Semaphore for sensor data access
 static SemaphoreHandle_t sensorDataSemaphore = NULL;
+
+// Queue handle for PID commands
+extern QueueHandle_t pidCommandQueue;
 
 // Control loop parameters
 #define CONTROL_TASK_STACK_SIZE 2048
@@ -45,6 +42,13 @@ static void ControlTask(void *pvParameters) {
             xSemaphoreGive(sensorDataSemaphore);
         }
         
+        // Handle PID commands from queue
+        pid_command_t pidCommand;
+        if(xQueueReceive(pidCommandQueue, &pidCommand, 0) == pdPASS) {
+            // Process PID command
+            ProcessPIDCommand(&pidCommand);
+        }
+        
         // Wait for next control loop iteration
         vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(CONTROL_LOOP_PERIOD_MS));
     }
@@ -69,4 +73,16 @@ BaseType_t InitControlTask(void) {
     );
     
     return result;
+}
+
+// PID task function to handle PID updates
+void pid_task(void *pvParameters) {
+    while(1) {
+        // Wait for PID command from queue
+        pid_command_t pidCommand;
+        if(xQueueReceive(pidCommandQueue, &pidCommand, portMAX_DELAY) == pdPASS) {
+            // Process PID command
+            ProcessPIDCommand(&pidCommand);
+        }
+    }
 }
