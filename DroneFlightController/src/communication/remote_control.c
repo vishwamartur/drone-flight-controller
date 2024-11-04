@@ -44,6 +44,10 @@ void remote_control_init(void) {
     irq_set_enabled(PWM_IRQ_WRAP, true);
     pwm_clear_irq(pwm_gpio_to_slice_num(0));
     pwm_set_irq_enabled(pwm_gpio_to_slice_num(0), true);
+
+    // Initialize ESCs
+    esc_config_t esc_config = {1, 1000, 2000, 1500};
+    esc_init(&esc_config);
 }
 
 void remote_control_update(void) {
@@ -88,6 +92,11 @@ static void check_failsafe(void) {
         // Disarm motors
         for (int i = 1; i <= 4; i++) {
             esc_disarm(i);
+        }
+    } else {
+        // Arm motors if signal is valid
+        for (int i = 1; i <= 4; i++) {
+            esc_arm(i);
         }
     }
 }

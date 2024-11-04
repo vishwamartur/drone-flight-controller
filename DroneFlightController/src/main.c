@@ -117,5 +117,9 @@ void IMU_Init(void) {
 // ESC initialization
 void ESC_Init(void) {
     // Initialize ESC communication
-    // Implementation specific to ESC hardware
+    esc_config_t esc_config = {1, 1000, 2000, 1500};
+    if (esc_init(&esc_config) != ESC_SUCCESS) {
+        logger_log(LOG_ERROR, __FILE__, __LINE__, "ESC initialization failed");
+        return;
+    }
 }

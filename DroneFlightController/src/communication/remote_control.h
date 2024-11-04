@@ -18,4 +18,10 @@ uint16_t get_yaw_channel(void);
 // Failsafe mechanism functions
 void check_failsafe(void);
 
+// ESC control function prototypes
+void esc_init(const esc_config_t *config);
+void esc_set_throttle(uint8_t channel, uint16_t throttle);
+void esc_arm(uint8_t channel);
+void esc_disarm(uint8_t channel);
+
 #endif /* REMOTE_CONTROL_H */
