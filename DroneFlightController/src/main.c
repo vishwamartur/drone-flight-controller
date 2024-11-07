@@ -44,6 +44,11 @@ int main(void) {
     float prev_pitch_output = 0.0f;
     float prev_yaw_output = 0.0f;
 
+    // Set initial PID values
+    set_initial_pid_values(1.0f, 0.1f, 0.01f,  // Pitch PID values
+                           1.0f, 0.1f, 0.01f,  // Roll PID values
+                           1.0f, 0.1f, 0.01f); // Yaw PID values
+
     // Main control loop
     while (1) {
         // Read IMU data
@@ -56,9 +61,9 @@ int main(void) {
         yaw = low_pass_filter(yaw, prev_yaw_output, 0.2f);
 
         // Update PID controllers for each axis
-        float roll_output = UpdatePID(roll, TARGET_ROLL);
-        float pitch_output = UpdatePID(pitch, TARGET_PITCH);
-        float yaw_output = UpdatePID(yaw, TARGET_YAW);
+        float roll_output = pid_compute(TARGET_ROLL, roll, 0.01f);
+        float pitch_output = pid_compute(TARGET_PITCH, pitch, 0.01f);
+        float yaw_output = pid_compute(TARGET_YAW, yaw, 0.01f);
 
         // Apply deadband to outputs
         roll_output = apply_deadband(roll_output, 0.05f);
@@ -70,6 +75,11 @@ int main(void) {
         pitch_output = constrain(pitch_output, -1.0f, 1.0f);
         yaw_output = constrain(yaw_output, -1.0f, 1.0f);
 
+        // Scale PID outputs to ESC input range (1000-2000)
+        roll_output = map(roll_output, -1.0f, 1.0f, 1000.0f, 2000.0f);
+        pitch_output = map(pitch_output, -1.0f, 1.0f, 1000.0f, 2000.0f);
+        yaw_output = map(yaw_output, -1.0f, 1.0f, 1000.0f, 2000.0f);
+
         // Set ESC values based on PID output
         SetESC(ROLL_CHANNEL, roll_output);
         SetESC(PITCH_CHANNEL, pitch_output);
@@ -79,6 +89,9 @@ int main(void) {
         prev_roll_output = roll_output;
         prev_pitch_output = pitch_output;
         prev_yaw_output = yaw_output;
+
+        // Delay to maintain fixed control loop frequency
+        HAL_Delay(10); // 10ms delay for 100Hz control loop
     }
 }
 

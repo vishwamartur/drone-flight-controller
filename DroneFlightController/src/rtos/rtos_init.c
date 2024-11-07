@@ -2,6 +2,7 @@
 #include "task.h"
 #include "queue.h"
 #include "semphr.h"
+#include "pid_controller.h"
 
 // Task handles
 TaskHandle_t sensorTaskHandle;
@@ -19,6 +20,25 @@ QueueHandle_t remoteControlQueue; // Added for remote control queue
 // Semaphore handles
 SemaphoreHandle_t i2cBusSemaphore;
 SemaphoreHandle_t spiBusSemaphore;
+
+// PID task function to handle PID updates
+void pid_task(void *pvParameters) {
+    // Set initial PID values
+    set_initial_pid_values(1.0f, 0.1f, 0.01f,  // Pitch PID values
+                           1.0f, 0.1f, 0.01f,  // Roll PID values
+                           1.0f, 0.1f, 0.01f); // Yaw PID values
+
+    TickType_t xLastWakeTime;
+    xLastWakeTime = xTaskGetTickCount();
+
+    while(1) {
+        // Update PID loop at a fixed frequency
+        // Add your PID update logic here
+
+        // Wait for the next cycle
+        vTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(10)); // 10ms delay for 100Hz update rate
+    }
+}
 
 // RTOS initialization function
 void rtos_init(void) {
