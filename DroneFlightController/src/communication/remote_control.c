@@ -10,6 +10,7 @@
 #define PITCH_CHANNEL    1
 #define ROLL_CHANNEL     2
 #define YAW_CHANNEL      3
+#define EMERGENCY_STOP_CHANNEL 4 // Added for emergency stop
 
 // PWM configuration
 #define PWM_WRAP 20000
@@ -19,7 +20,7 @@
 #define SIGNAL_LOSS_TIMEOUT_MS 1000
 
 // Channel values
-static uint16_t channel_values[4] = {0};
+static uint16_t channel_values[5] = {0}; // Updated to include emergency stop channel
 
 // Last signal time
 static uint32_t last_signal_time = 0;
@@ -28,10 +29,11 @@ static uint32_t last_signal_time = 0;
 static void pwm_irq_handler(void);
 static void update_channel_values(uint slice_num, uint16_t value);
 static void check_failsafe(void);
+static void emergency_stop(void); // Added prototype for emergency stop function
 
 void remote_control_init(void) {
     // Initialize PWM
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < 5; i++) { // Updated to include emergency stop channel
         gpio_set_function(i, GPIO_FUNC_PWM);
         uint slice_num = pwm_gpio_to_slice_num(i);
         pwm_set_wrap(slice_num, PWM_WRAP);
@@ -69,7 +71,7 @@ void remote_control_update(void) {
 
 static void pwm_irq_handler(void) {
     // Read PWM values
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < 5; i++) { // Updated to include emergency stop channel
         uint slice_num = pwm_gpio_to_slice_num(i);
         uint16_t value = pwm_get_counter(slice_num);
         update_channel_values(slice_num, value);
@@ -80,7 +82,7 @@ static void pwm_irq_handler(void) {
 }
 
 static void update_channel_values(uint slice_num, uint16_t value) {
-    if (slice_num < 4) {
+    if (slice_num < 5) { // Updated to include emergency stop channel
         channel_values[slice_num] = value;
         last_signal_time = to_ms_since_boot(get_absolute_time());
     }
@@ -98,6 +100,18 @@ static void check_failsafe(void) {
         for (int i = 1; i <= 4; i++) {
             esc_arm(i);
         }
+    }
+
+    // Check for emergency stop command
+    if (channel_values[EMERGENCY_STOP_CHANNEL] > 1500) { // Assuming a value above 1500 indicates emergency stop
+        emergency_stop();
+    }
+}
+
+static void emergency_stop(void) {
+    // Disarm all motors immediately
+    for (int i = 1; i <= 4; i++) {
+        esc_disarm(i);
     }
 }
 
