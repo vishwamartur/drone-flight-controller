@@ -26,7 +26,7 @@ void ESC_Init(void);
 
 int main(void) {
     // Initialize logger
-    logger_init("flight.log", LOG_INFO);
+    logger_init("flight.log", LOG_INFO, LOG_TO_FLASH);
     logger_log(LOG_INFO, __FILE__, __LINE__, "System startup");
 
     // Initialize the system clock
@@ -90,6 +90,11 @@ int main(void) {
         prev_roll_output = roll_output;
         prev_pitch_output = pitch_output;
         prev_yaw_output = yaw_output;
+
+        // Log sensor readings, PID outputs, and motor speeds
+        logger_log(LOG_INFO, __FILE__, __LINE__, "Sensor Readings - Roll: %f, Pitch: %f, Yaw: %f", roll, pitch, yaw);
+        logger_log(LOG_INFO, __FILE__, __LINE__, "PID Outputs - Roll: %f, Pitch: %f, Yaw: %f", roll_output, pitch_output, yaw_output);
+        logger_log(LOG_INFO, __FILE__, __LINE__, "Motor Speeds - Roll: %f, Pitch: %f, Yaw: %f", roll_output, pitch_output, yaw_output);
 
         // Check for emergency stop
         if (isFailsafeActive()) {

@@ -1,6 +1,3 @@
-Here’s a sample `usage.md` file for the `docs/` directory in your drone flight controller project. This document provides usage instructions for the flight controller, helping users understand how to operate and utilize the system effectively.
-
-```markdown
 # Usage Instructions for Drone Flight Controller
 
 ## Introduction
@@ -13,6 +10,7 @@ This document provides instructions on how to use the Drone Flight Controller af
 - [Using the Control Interface](#using-the-control-interface)
 - [Fail-Safe Mechanisms](#fail-safe-mechanisms)
 - [Adjusting PID Parameters](#adjusting-pid-parameters)
+- [Configuring and Using the Logging Feature](#configuring-and-using-the-logging-feature)
 
 ## Starting the Flight Controller
 
@@ -81,12 +79,33 @@ Fine-tuning the PID parameters is crucial for optimal flight performance. To adj
 
 3. **Recompile the Firmware**: After making changes to the PID values, recompile the firmware and flash it back to the drone.
 
+## Configuring and Using the Logging Feature
+
+The flight controller now supports logging critical data to flash memory or external storage for analysis. Follow these steps to configure and use the logging feature:
+
+1. **Initialize the Logger**:
+   - In your main code file (e.g., `main.c`), initialize the logger with the desired logging destination (flash memory or external storage).
+   ```c
+   logger_init("flight.log", LOG_INFO, LOG_TO_FLASH);
+   ```
+
+2. **Log Data**:
+   - Use the `logger_log` function to log sensor readings, PID outputs, and motor speeds.
+   ```c
+   logger_log(LOG_INFO, __FILE__, __LINE__, "Sensor Readings - Roll: %f, Pitch: %f, Yaw: %f", roll, pitch, yaw);
+   logger_log(LOG_INFO, __FILE__, __LINE__, "PID Outputs - Roll: %f, Pitch: %f, Yaw: %f", roll_output, pitch_output, yaw_output);
+   logger_log(LOG_INFO, __FILE__, __LINE__, "Motor Speeds - Roll: %f, Pitch: %f, Yaw: %f", roll_output, pitch_output, yaw_output);
+   ```
+
+3. **Close the Logger**:
+   - After the flight session, close the logger to ensure all data is properly saved.
+   ```c
+   logger_close();
+   ```
+
+4. **Analyze the Data**:
+   - Retrieve the logged data from the flash memory or external storage and analyze it to improve flight performance and diagnose issues.
+
 ## Conclusion
 
 This usage guide should help you operate the Drone Flight Controller effectively. For further assistance or troubleshooting, refer to the project documentation, check the GitHub issues page, or consult the community forums.
-```
-
-### How to Use This Document
-- Save the above text as `usage.md` in the `docs/` directory of your project.
-- Adjust the content as needed to reflect the actual commands, parameters, and configurations used in your project.
-- Consider adding examples, troubleshooting tips, or links to additional resources that users may find helpful.
