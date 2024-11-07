@@ -1,10 +1,3 @@
-//
-//  failsafe.h
-//  DroneFlightController
-//
-//  Created by Vishwanath Martur on 11/1/24.
-//
-
 #ifndef failsafe_h
 #define failsafe_h
 
@@ -31,5 +24,8 @@ void failsafeUpdate(void);
 failsafeState_t getFailsafeState(void);
 void resetFailsafe(void);
 bool isFailsafeActive(void);
+
+// Emergency stop function prototype
+void emergency_stop(void);
 
 #endif /* failsafe_h */

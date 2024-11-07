@@ -24,4 +24,7 @@ void esc_set_throttle(uint8_t channel, uint16_t throttle);
 void esc_arm(uint8_t channel);
 void esc_disarm(uint8_t channel);
 
+// Emergency stop function prototype
+void emergency_stop(void);
+
 #endif /* REMOTE_CONTROL_H */

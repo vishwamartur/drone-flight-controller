@@ -6,6 +6,7 @@
 #include "esc.h"
 #include "utils/math_utils.h"
 #include "utils/logger.h"
+#include "failsafe.h" // Added for emergency stop
 
 // Constants for target angles and channels
 #define TARGET_ROLL     0.0f   // Target roll angle in degrees
@@ -89,6 +90,11 @@ int main(void) {
         prev_roll_output = roll_output;
         prev_pitch_output = pitch_output;
         prev_yaw_output = yaw_output;
+
+        // Check for emergency stop
+        if (isFailsafeActive()) {
+            emergency_stop();
+        }
 
         // Delay to maintain fixed control loop frequency
         HAL_Delay(10); // 10ms delay for 100Hz control loop

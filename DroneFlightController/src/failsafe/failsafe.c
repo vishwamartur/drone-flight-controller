@@ -1,10 +1,3 @@
-//
-//  failsafe.c
-//  DroneFlightController
-//
-//  Created by Vishwanath Martur on 11/1/24.
-//
-
 #include <stdbool.h>
 #include <stdint.h>
 #include "failsafe.h"
@@ -51,5 +44,13 @@ void executeFailsafe(void) {
         // 2. Level the aircraft
         // 3. Enable auto-landing mode if available
         // 4. Cut motors if critical
+    }
+}
+
+// Emergency stop function implementation
+void emergency_stop(void) {
+    // Disarm all motors immediately
+    for (int i = 1; i <= 4; i++) {
+        esc_disarm(i);
     }
 }
